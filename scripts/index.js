@@ -1,31 +1,31 @@
 // Esta es la base de datos de nuestros usuarios
 const baseDeDatos = {
-  usuarios: [
-    {
-      id: 1,
-      name: "Steve Jobs",
-      email: "steve@jobs.com",
-      password: "Steve123",
-    },
-    {
-      id: 2,
-      name: "Ervin Howell",
-      email: "shanna@melissa.tv",
-      password: "Ervin345",
-    },
-    {
-      id: 3,
-      name: "Clementine Bauch",
-      email: "nathan@yesenia.net",
-      password: "Floppy39876",
-    },
-    {
-      id: 4,
-      name: "Patricia Lebsack",
-      email: "julianne.oconner@kory.org",
-      password: "MysuperPassword345",
-    },
-  ],
+    usuarios: [
+        {
+            id: 1,
+            name: "Steve Jobs",
+            email: "steve@jobs.com",
+            password: "Steve123",
+        },
+        {
+            id: 2,
+            name: "Ervin Howell",
+            email: "shanna@melissa.tv",
+            password: "Ervin345",
+        },
+        {
+            id: 3,
+            name: "Clementine Bauch",
+            email: "nathan@yesenia.net",
+            password: "Floppy39876",
+        },
+        {
+            id: 4,
+            name: "Patricia Lebsack",
+            email: "julianne.oconner@kory.org",
+            password: "MysuperPassword345",
+        },
+    ],
 };
 
 // ACTIVIDAD
@@ -63,3 +63,93 @@ TIPS:
 
    ¡Manos a la obra!
  */
+
+window.addEventListener("load", () => {
+    showElement(document.querySelector("h1"));
+    if (localStorage.getItem("userName")) {
+        render();
+    } else {
+        login();
+    }
+});
+
+function login() {
+    showElement(document.querySelector("form"));
+    const button = document.querySelector("button.login-btn");
+    button.removeEventListener("click", validateForm);
+    button.addEventListener("click", validateForm);
+}
+
+function validateForm() {
+    const loader = document.querySelector("#loader");
+    const errorContainer = document.querySelector("#error-container");
+    const email = document.querySelector("#email-input").value;
+    const password = document.querySelector("#password-input").value;
+
+    hideElement(errorContainer);
+    showElement(loader);
+
+    setTimeout(() => {
+        if (
+            validateEmail(email) &&
+            validatePassword(password) &&
+            validatePerson(email, password, baseDeDatos.usuarios)
+        ) {
+            render();
+        } else {
+            hideElement(loader);
+            errorContainer.innerHTML = `<small>Uno o todos los datos ingresados son incorrectos</small>`;
+            showElement(errorContainer);
+        }
+    }, 3000);
+}
+
+function render() {
+    hideElement(document.querySelector("form"));
+    const h1 = document.querySelector("h1");
+    const user = localStorage.getItem("userName");
+    h1.innerText = `Bienvenido al sitio ${user} 😀`;
+    const logoutButton = document.querySelector("button.logout-btn");
+    showElement(logoutButton);
+    logoutButton.removeEventListener("click", logout);
+    logoutButton.addEventListener("click", logout);
+}
+
+function validateEmail(email) {
+    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return regex.test(email);
+}
+
+function validatePassword(password) {
+    // Mínimo 8 caracteres
+    // Al menos una letra mayúscula
+    // Al menos una letra minúscula
+    // Al menos un número
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    return regex.test(password);
+}
+
+function validatePerson(email, password, users) {
+    for (const user of users) {
+        if (user.email === email && user.password === password) {
+            localStorage.setItem("userName", user.name);
+            return true;
+        }
+    }
+    return false;
+}
+
+function logout() {
+    localStorage.clear();
+    document.querySelector("h1").innerText = "Iniciar Sesión";
+    hideElement(document.querySelector("button.logout-btn"));
+    login();
+}
+
+function showElement(element) {
+    element.classList.remove("hidden");
+}
+
+function hideElement(element) {
+    element.classList.add("hidden");
+}
